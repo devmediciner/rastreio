@@ -3,359 +3,978 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Protocolos Clínicos PHQ-9 & GAD-7</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>CANMAT Clinical — PHQ-9 & GAD-7</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        
-        body { 
-            font-family: 'Plus+Jakarta+Sans', sans-serif; 
-            scroll-behavior: smooth;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink: #0f0e0b;
+            --paper: #f5f2ec;
+            --paper-alt: #ede9e1;
+            --cream: #faf8f3;
+            --accent: #c8402a;
+            --accent-light: #f0e0dc;
+            --accent-dark: #8f2a1a;
+            --indigo: #1e2d6b;
+            --indigo-light: #e4e8f5;
+            --green: #2a6b47;
+            --green-light: #ddf0e6;
+            --amber: #8b5e00;
+            --amber-light: #fef0cc;
+            --orange: #b84a1a;
+            --orange-light: #fde8dd;
+            --border: rgba(15,14,11,0.12);
+            --shadow: 0 2px 16px rgba(15,14,11,0.08);
+            --shadow-lg: 0 8px 48px rgba(15,14,11,0.12);
+            --r: 4px;
+            --r-lg: 12px;
+            --r-xl: 20px;
         }
 
-        .option-input:checked + .option-label {
-            background-color: #1e1b4b;
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--paper);
+            color: var(--ink);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        /* PROGRESS */
+        #progress-track {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 3px;
+            background: var(--border);
+            z-index: 100;
+        }
+        #progress-bar {
+            height: 100%;
+            background: var(--accent);
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+
+        /* LAYOUT */
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+        }
+
+        /* HEADER */
+        .masthead {
+            margin-bottom: 40px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--ink);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .masthead-left {}
+        .tool-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--ink);
+            color: var(--paper);
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            padding: 4px 10px;
+            border-radius: var(--r);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .tool-badge .dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .masthead h1 {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(28px, 5vw, 42px);
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+        }
+        .masthead h1 em {
+            font-style: italic;
+            color: var(--accent);
+        }
+        .masthead-meta {
+            font-size: 11px;
+            color: rgba(15,14,11,0.5);
+            font-family: 'DM Mono', monospace;
+            letter-spacing: 0.06em;
+            margin-top: 6px;
+            text-transform: uppercase;
+        }
+        .masthead-right {
+            text-align: right;
+        }
+        .canmat-stamp {
+            border: 2px solid var(--ink);
+            padding: 8px 16px;
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            line-height: 1.8;
+            color: var(--ink);
+        }
+        .canmat-stamp strong {
+            display: block;
+            font-size: 13px;
+            letter-spacing: 0.04em;
+        }
+
+        /* TOOL SWITCHER */
+        .switcher {
+            display: flex;
+            gap: 0;
+            border: 2px solid var(--ink);
+            border-radius: var(--r-lg);
+            overflow: hidden;
+            margin-bottom: 32px;
+            width: fit-content;
+        }
+        .switcher-btn {
+            padding: 12px 28px;
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: rgba(15,14,11,0.45);
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .switcher-btn.active {
+            background: var(--ink);
+            color: var(--paper);
+        }
+        .switcher-btn:not(:last-child) {
+            border-right: 2px solid var(--ink);
+        }
+
+        /* TEMPORAL CONTEXT */
+        .context-bar {
+            background: var(--ink);
+            color: var(--paper);
+            padding: 16px 24px;
+            border-radius: var(--r-lg);
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .context-bar .ctx-icon {
+            width: 36px; height: 36px;
+            border: 1.5px solid rgba(245,242,236,0.25);
+            border-radius: var(--r);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .context-bar p {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .context-bar span {
+            color: #f0c87a;
+            font-family: 'DM Mono', monospace;
+            font-style: italic;
+        }
+
+        /* QUESTIONS */
+        .questions-stack { display: flex; flex-direction: column; gap: 10px; }
+        .q-card {
+            background: var(--cream);
+            border: 1.5px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 20px 20px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .q-card:hover { border-color: rgba(15,14,11,0.28); }
+        .q-card.answered { border-color: var(--ink); background: white; }
+
+        .q-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+        .q-num {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(15,14,11,0.4);
+            flex-shrink: 0;
+            padding-top: 2px;
+            letter-spacing: 0.06em;
+        }
+        .q-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ink);
+            line-height: 1.5;
+        }
+
+        .q-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+        .opt-radio { display: none; }
+        .opt-label {
+            display: block;
+            text-align: center;
+            padding: 9px 4px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--r);
+            cursor: pointer;
+            font-size: 10px;
+            font-family: 'DM Mono', monospace;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: rgba(15,14,11,0.45);
+            background: var(--paper);
+            transition: all 0.15s;
+            user-select: none;
+        }
+        .opt-label:hover {
+            border-color: var(--ink);
+            color: var(--ink);
+        }
+        .opt-radio:checked + .opt-label {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        /* FUNCIONALIDADE */
+        .func-card {
+            background: var(--cream);
+            border: 1.5px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 20px;
+            margin-top: 10px;
+        }
+        .func-card h3 {
+            font-size: 11px;
+            font-family: 'DM Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: rgba(15,14,11,0.45);
+            margin-bottom: 14px;
+        }
+
+        /* RESULTS */
+        #result-section { margin-top: 48px; scroll-margin-top: 32px; }
+        .result-card {
+            background: white;
+            border: 2px solid var(--ink);
+            border-radius: var(--r-xl);
+            overflow: hidden;
+        }
+
+        .result-hero {
+            padding: 40px 40px 32px;
+            border-bottom: 1.5px solid var(--border);
+            display: flex;
+            gap: 32px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .score-block {
+            flex-shrink: 0;
+        }
+        .score-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(15,14,11,0.4);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .score-number {
+            font-family: 'Fraunces', serif;
+            font-size: 96px;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -0.04em;
+            color: var(--ink);
+        }
+        .score-max {
+            font-family: 'DM Mono', monospace;
+            font-size: 14px;
+            color: rgba(15,14,11,0.3);
+            margin-top: 4px;
+        }
+        .result-info { flex: 1; }
+        .severity-pill {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 100px;
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .result-title {
+            font-family: 'Fraunces', serif;
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 10px;
+            letter-spacing: -0.01em;
+        }
+        .result-desc {
+            font-size: 14px;
+            color: rgba(15,14,11,0.65);
+            line-height: 1.65;
+            font-weight: 300;
+            font-style: italic;
+        }
+
+        /* SUICIDE WARNING */
+        .suicide-alert {
+            margin: 0 40px;
+            padding: 24px 28px;
+            background: var(--accent);
             color: white;
-            border-color: #1e1b4b;
-            box-shadow: 0 4px 12px rgba(30, 27, 75, 0.2);
+            border-radius: var(--r-lg);
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            margin-top: 24px;
+        }
+        .suicide-alert .alert-icon {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .suicide-alert h4 {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            opacity: 0.8;
+        }
+        .suicide-alert p {
+            font-size: 13px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+        .hidden { display: none !important; }
+
+        /* CONDUCT SECTIONS */
+        .conduct-body { padding: 32px 40px 40px; display: flex; flex-direction: column; gap: 24px; }
+
+        .conduct-block {
+            background: var(--paper);
+            border: 1.5px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 24px 28px;
+        }
+        .conduct-block-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .conduct-block-header .ch-icon {
+            width: 28px; height: 28px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--r);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(15,14,11,0.5);
+            flex-shrink: 0;
+        }
+        .conduct-block-header h4 {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(15,14,11,0.4);
+        }
+        .conduct-block p, .conduct-block .conduct-text {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.65;
+            color: var(--ink);
         }
 
-        .tool-tab.active {
-            background-color: #1e1b4b;
-            color: white;
-            border-color: #1e1b4b;
+        /* PHARMA GRID */
+        .pharma-block {
+            background: var(--ink);
+            border-radius: var(--r-lg);
+            padding: 28px;
+        }
+        .pharma-block-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .pharma-block-header h4 {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(245,242,236,0.45);
+        }
+        .pharma-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+        }
+        .pharma-card {
+            background: rgba(245,242,236,0.07);
+            border: 1px solid rgba(245,242,236,0.12);
+            border-radius: var(--r-lg);
+            padding: 18px 20px;
+        }
+        .pharma-card-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(245,242,236,0.4);
+            display: block;
+            margin-bottom: 8px;
+        }
+        .pharma-card-content {
+            font-size: 13px;
+            color: rgba(245,242,236,0.88);
+            line-height: 1.65;
+            font-weight: 300;
+        }
+        .pharma-card-content strong {
+            color: #f0c87a;
+            font-weight: 600;
+        }
+        .pharma-card-content em {
+            color: rgba(245,242,236,0.5);
+            font-style: italic;
         }
 
-        .question-card {
-            transition: all 0.2s ease-in-out;
+        /* IMPORTANT NOTES */
+        .note-box {
+            background: var(--amber-light);
+            border-left: 3px solid var(--amber);
+            border-radius: 0 var(--r) var(--r) 0;
+            padding: 14px 18px;
+            font-size: 12px;
+            line-height: 1.65;
+            color: rgba(15,14,11,0.75);
+            margin-top: 14px;
+        }
+        .note-box strong {
+            color: var(--amber);
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* RESET BUTTON */
+        .reset-row {
+            padding: 24px 40px;
+            border-top: 1.5px solid var(--border);
+        }
+        .reset-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            border-radius: var(--r-lg);
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .reset-btn:hover { opacity: 0.8; }
+
+        /* FOOTER */
+        .disclaimer {
+            margin-top: 40px;
+            padding: 24px 28px;
+            background: var(--paper-alt);
+            border: 1.5px dashed var(--border);
+            border-radius: var(--r-lg);
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            line-height: 1.9;
+            color: rgba(15,14,11,0.45);
+            letter-spacing: 0.03em;
+        }
+        .disclaimer strong { color: rgba(15,14,11,0.7); }
+
+        @media (max-width: 600px) {
+            .container { padding: 28px 16px 60px; }
+            .result-hero { padding: 28px 24px 24px; }
+            .conduct-body { padding: 24px; }
+            .score-number { font-size: 72px; }
+            .q-options { grid-template-columns: repeat(2, 1fr); }
+            .pharma-grid { grid-template-columns: 1fr; }
+            .suicide-alert, .reset-row { margin: 0 24px; }
         }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body>
 
-    <div class="fixed top-0 left-0 w-full h-1.5 bg-slate-200 z-50">
-        <div id="progress-bar" class="h-full bg-indigo-600 transition-all duration-500" style="width: 0%"></div>
-    </div>
+<div id="progress-track"><div id="progress-bar"></div></div>
 
-    <div class="max-w-5xl mx-auto px-4 py-8">
-        <!-- Seletor de Ferramenta -->
-        <div class="flex justify-center mb-8 no-print">
-            <div class="bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm flex gap-1">
-                <button onclick="switchTool('phq9')" id="btn-phq9" class="tool-tab active px-6 py-2.5 rounded-xl text-sm font-bold transition-all border border-transparent">
-                    DEPRESSÃO (PHQ-9)
-                </button>
-                <button onclick="switchTool('gad7')" id="btn-gad7" class="tool-tab px-6 py-2.5 rounded-xl text-sm font-bold transition-all border border-transparent text-slate-500 hover:bg-slate-50">
-                    ANSIEDADE (GAD-7)
-                </button>
+<div class="container">
+
+    <!-- MASTHEAD -->
+    <header class="masthead">
+        <div class="masthead-left">
+            <div class="tool-badge"><span class="dot"></span> Suporte à Decisão Clínica</div>
+            <h1><em id="hdr-tool">PHQ-9</em> Clinical<br>Dashboard</h1>
+            <p class="masthead-meta" id="hdr-sub">CANMAT 2023 · WFSBP · Psiquiatria baseada em evidências</p>
+        </div>
+        <div class="masthead-right">
+            <div class="canmat-stamp">
+                <strong>CANMAT 2023</strong>
+                Diretrizes para MDD<br>
+                WFSBP / Ansiedade<br>
+                Revisado Mai 2026
             </div>
         </div>
+    </header>
 
-        <header class="mb-10 border-b border-slate-200 pb-8">
-            <div class="flex justify-between items-start mb-4">
+    <!-- TOOL SWITCHER -->
+    <div class="switcher">
+        <button class="switcher-btn active" id="btn-phq9" onclick="switchTool('phq9')">⬤ PHQ-9 Depressão</button>
+        <button class="switcher-btn" id="btn-gad7" onclick="switchTool('gad7')">○ GAD-7 Ansiedade</button>
+    </div>
+
+    <!-- CONTEXT BAR -->
+    <div class="context-bar">
+        <div class="ctx-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <p>Nas <span>últimas 2 semanas</span>, com que frequência o paciente foi incomodado por:</p>
+    </div>
+
+    <!-- FORM -->
+    <form id="assessmentForm">
+        <div id="questions-list" class="questions-stack"></div>
+
+        <!-- FUNCIONALIDADE -->
+        <div class="func-card" style="margin-top:16px;">
+            <h3>Impacto na Funcionalidade · Laboral / Social / Doméstico</h3>
+            <div class="q-options">
                 <div>
-                    <h1 id="header-title" class="text-3xl font-extrabold text-slate-900 tracking-tight uppercase">PHQ-9 Clinical</h1>
-                    <p id="header-subtitle" class="text-indigo-600 font-bold text-sm">Diretrizes CANMAT / WFSBP 2024</p>
-                </div>
-                
-            </div>
-
-            <div id="instruction-box" class="bg-indigo-950 text-white p-5 rounded-2xl shadow-lg shadow-indigo-100 flex items-center gap-4 border-l-8 border-indigo-500">
-                <div class="bg-indigo-800 p-3 rounded-xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <input type="radio" name="impact" id="imp-0" value="0" class="opt-radio">
+                    <label for="imp-0" class="opt-label">Nenhum</label>
                 </div>
                 <div>
-                    <p class="text-[10px] font-black uppercase tracking-widest opacity-70 mb-1">Status Temporal</p>
-                    <p class="text-lg font-semibold leading-tight">Nas últimas <span class="text-indigo-300">2 semanas</span>, com que frequência o paciente apresentou:</p>
+                    <input type="radio" name="impact" id="imp-1" value="1" class="opt-radio">
+                    <label for="imp-1" class="opt-label">Leve</label>
                 </div>
-            </div>
-        </header>
-
-        <form id="assessmentForm" class="space-y-4">
-            <div id="questions-list" class="space-y-3">
-                <!-- Inserido via JS -->
-            </div>
-
-            <!-- Funcionalidade -->
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 mt-8">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 font-bold text-lg italic">
-                        i
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-900 tracking-tight">Impacto na Funcionalidade</h3>
-                        <p class="text-xs text-slate-400 font-medium italic">Prejuízo laboral, social ou doméstico:</p>
-                    </div>
+                <div>
+                    <input type="radio" name="impact" id="imp-2" value="2" class="opt-radio">
+                    <label for="imp-2" class="opt-label">Moderado</label>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <input type="radio" name="impact" id="imp-0" value="0" class="hidden option-input">
-                    <label for="imp-0" class="option-label block text-center py-3 rounded-xl border-2 border-slate-100 cursor-pointer font-bold text-slate-500 text-[10px] uppercase transition-all">Nenhum</label>
-                    
-                    <input type="radio" name="impact" id="imp-1" value="1" class="hidden option-input">
-                    <label for="imp-1" class="option-label block text-center py-3 rounded-xl border-2 border-slate-100 cursor-pointer font-bold text-slate-500 text-[10px] uppercase transition-all">Leve</label>
-                    
-                    <input type="radio" name="impact" id="imp-2" value="2" class="hidden option-input">
-                    <label for="imp-2" class="option-label block text-center py-3 rounded-xl border-2 border-slate-100 cursor-pointer font-bold text-slate-500 text-[10px] uppercase transition-all">Moderado</label>
-                    
-                    <input type="radio" name="impact" id="imp-3" value="3" class="hidden option-input">
-                    <label for="imp-3" class="option-label block text-center py-3 rounded-xl border-2 border-slate-100 cursor-pointer font-bold text-slate-500 text-[10px] uppercase transition-all">Grave</label>
-                </div>
-            </div>
-        </form>
-
-        <!-- Resultados Expandidos -->
-        <div id="result-section" class="mt-10 hidden scroll-mt-6">
-            <div class="bg-white rounded-[2.5rem] shadow-2xl border border-slate-200 p-8 md:p-12 overflow-hidden relative">
-                
-                <div class="flex flex-col md:flex-row items-center md:items-start gap-10 mb-10 border-b border-slate-100 pb-10">
-                    <div class="text-center md:text-left">
-                        <span id="score-label" class="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] block mb-2">SCORE TOTAL</span>
-                        <div id="final-score" class="text-9xl font-black text-slate-900 leading-none tracking-tighter">0</div>
-                    </div>
-                    <div class="flex-1 text-center md:text-left">
-                        <span id="severity-badge" class="px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-[0.1em] mb-4 inline-block">Analisando</span>
-                        <h2 id="final-severity" class="text-4xl font-extrabold text-slate-900 mb-3 tracking-tight">Status Clínico</h2>
-                        <p id="final-desc" class="text-slate-500 text-lg leading-relaxed max-w-2xl font-medium"></p>
-                    </div>
-                </div>
-
-                <!-- Ideação Suicida -->
-                <div id="suicide-warning" class="hidden mb-10 bg-red-700 rounded-3xl p-8 text-white shadow-2xl shadow-red-200 border-b-8 border-red-900">
-                    <div class="flex items-start gap-6">
-                        <div class="bg-white/20 p-4 rounded-2xl backdrop-blur-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
-                        </div>
-                        <div>
-                            <h4 class="font-black uppercase tracking-widest text-2xl mb-2">Item 9 Positivo: Alerta Vermelho</h4>
-                            <p class="text-base font-bold opacity-90 leading-snug">Ideação suicida identificada. Requer avaliação de plano, acesso a métodos e letalidade imediata. Considerar internação psiquiátrica se risco iminente.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="space-y-8">
-                    <!-- Psicoterapia -->
-                    <div class="bg-slate-50 rounded-3xl p-8 border border-slate-100">
-                        <h4 class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-[0.2em] flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                            Conduta Psicoterapêutica
-                        </h4>
-                        <p id="final-action" class="text-slate-800 text-lg font-bold leading-relaxed"></p>
-                    </div>
-
-                    <!-- Farmacoterapia Detalhada -->
-                    <div id="pharma-container" class="bg-white rounded-3xl border-2 border-indigo-50 p-2 overflow-hidden">
-                        <div class="bg-indigo-900 p-6 rounded-[1.8rem] text-white">
-                            <h4 class="text-[10px] font-black text-indigo-300 uppercase mb-4 tracking-[0.2em] flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg>
-                                Esquema Farmacológico Baseado em Guidelines
-                            </h4>
-                            <div id="pharma-action" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <!-- Inserido via JS -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-10 pt-8 border-t border-slate-100 flex gap-4">
-                    <button onclick="location.reload()" class="flex-1 py-5 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all text-xs uppercase tracking-widest shadow-xl shadow-slate-200">
-                        Novo Paciente
-                    </button>
+                <div>
+                    <input type="radio" name="impact" id="imp-3" value="3" class="opt-radio">
+                    <label for="imp-3" class="opt-label">Grave</label>
                 </div>
             </div>
         </div>
+    </form>
 
-        <footer class="mt-12 p-8 bg-slate-100 rounded-3xl text-[10px] text-slate-500 leading-relaxed text-justify border border-slate-200">
-            <p class="mb-2"><strong>Aviso Legal para Médicos:</strong> Esta ferramenta é um suporte à decisão clínica e não substitui o julgamento profissional. As sugestões baseiam-se nos algoritmos <strong>CANMAT (2016/2023)</strong>. Verifique interações medicamentosas (especialmente CYP450) e contraindicações específicas antes da prescrição.</p>
-            <p><strong>Titulação ISRS:</strong> Dose-alvo deve ser atingida em 2-4 semanas conforme tolerabilidade. Monitorar ativação/hipomania. Em idosos, aplicar a regra "start low, go slow".</p>
-        </footer>
+    <!-- RESULTS -->
+    <div id="result-section" class="hidden">
+        <div class="result-card">
+            <!-- HERO -->
+            <div class="result-hero">
+                <div class="score-block">
+                    <span class="score-label">Score Total</span>
+                    <div class="score-number" id="final-score">0</div>
+                    <div class="score-max" id="score-max">/27</div>
+                </div>
+                <div class="result-info">
+                    <span class="severity-pill" id="severity-pill">—</span>
+                    <div class="result-title" id="result-title">—</div>
+                    <p class="result-desc" id="result-desc">—</p>
+                </div>
+            </div>
+
+            <!-- ALERTA SUICÍDIO -->
+            <div id="suicide-alert" class="suicide-alert hidden">
+                <div class="alert-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <div>
+                    <h4>Item 9 Positivo — Alerta de Risco</h4>
+                    <p>Ideação suicida identificada. Realizar avaliação estruturada de risco: plano, intenção, acesso a meios e letalidade. Se risco iminente: acionamento de suporte imediato e/ou internação psiquiátrica de urgência. CVV: 188.</p>
+                </div>
+            </div>
+
+            <!-- BODY -->
+            <div class="conduct-body">
+                <!-- Conduta Geral -->
+                <div class="conduct-block">
+                    <div class="conduct-block-header">
+                        <div class="ch-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                        </div>
+                        <h4>Conduta Geral e Psicoterapêutica</h4>
+                    </div>
+                    <p id="action-text"></p>
+                </div>
+
+                <!-- Farmacoterapia -->
+                <div class="pharma-block">
+                    <div class="pharma-block-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(245,242,236,0.4)" stroke-width="2.5"><path d="m10.5 20.5 10-10a4.95 4.95 0 10-7-7l-10 10a4.95 4.95 0 107 7z"/><path d="m8.5 8.5 7 7"/></svg>
+                        <h4 id="pharma-title">Estratégia Farmacológica (CANMAT 2023)</h4>
+                    </div>
+                    <div class="pharma-grid" id="pharma-grid"></div>
+                </div>
+
+                <!-- Notas importantes -->
+                <div id="notes-block" class="hidden">
+                    <div class="note-box" id="note-content"></div>
+                </div>
+            </div>
+
+            <div class="reset-row">
+                <button class="reset-btn" onclick="location.reload()">↺ Novo Paciente / Limpar Avaliação</button>
+            </div>
+        </div>
     </div>
 
-    <script>
-        let currentTool = 'phq9';
+    <footer class="disclaimer">
+        <strong>⚠ Aviso Legal — Uso Clínico Exclusivo</strong><br>
+        Ferramenta de suporte à decisão baseada no <strong>CANMAT 2023 (Major Depressive Disorder)</strong>, <strong>WFSBP/CANMAT (Anxiety Disorders)</strong> e diretrizes da <strong>AASM (Insomnia)</strong>. Não substitui julgamento clínico. Avaliar comorbidades, risco metabólico (particularmente com quetiapina e mirtazapina), função hepática/renal e interações via CYP450 (2D6, 3A4). Doses referenciadas para adultos hígidos. Populações especiais (gestantes, idosos, insuficiência orgânica) requerem ajustes individualizados. <strong>Princípio CANMAT de reavaliação:</strong> Avaliar resposta em 2–4 semanas; melhora ≥20% sugere continuidade; ausência de resposta ≤20% indica otimização de dose, troca de classe ou potencialização.
+    </footer>
+</div>
 
-        const questionsData = {
-            phq9: {
-                title: "PHQ-9 - Depressão",
-                subtitle: "Protocolo de Manejo da Depressão (CANMAT)",
-                questions: [
-                    "Pouco interesse ou prazer em fazer as coisas",
-                    "Sentir-se 'para baixo', deprimido(a) ou sem perspectiva",
-                    "Dificuldade para pegar no sono, permanecer dormindo ou dormir demais",
-                    "Sentir-se cansado(a) ou com pouca energia",
-                    "Falta de apetite ou comendo demais",
-                    "Sentir-se mal consigo mesmo(a) ou com sensação de fracasso",
-                    "Dificuldade para se concentrar (ex: ler ou ver TV)",
-                    "Lentidão psicomotora ou agitação percebida por terceiros",
-                    "Ideação suicida ou pensamentos de morte/autolesão"
-                ]
+<script>
+    let currentTool = 'phq9';
+
+    const toolData = {
+        phq9: {
+            title: 'PHQ-9',
+            subtitle: 'CANMAT 2023 · Depressão · PHQ-9 Clinical',
+            maxScore: 27,
+            questions: [
+                'Pouco interesse ou prazer em fazer as coisas',
+                'Sentir-se deprimido(a), "para baixo" ou sem perspectiva',
+                'Dificuldade para pegar no sono, permanecer dormindo ou dormir demais',
+                'Sentir-se cansado(a) ou com pouca energia',
+                'Falta de apetite ou comendo demais',
+                'Sentir-se mal consigo mesmo(a) — fracasso ou decepção',
+                'Dificuldade para se concentrar (ler, TV, tarefas)',
+                'Lentidão ou agitação psicomotora perceptível por outros',
+                'Pensamentos de morte, autolesão ou ideação suicida'
+            ],
+            results: getDepressaoResults()
+        },
+        gad7: {
+            title: 'GAD-7',
+            subtitle: 'WFSBP · CANMAT · Ansiedade Generalizada · GAD-7',
+            maxScore: 21,
+            questions: [
+                'Sentir-se nervoso(a), ansioso(a) ou muito tenso(a)',
+                'Não conseguir parar ou controlar as preocupações',
+                'Preocupar-se demais com diversas coisas',
+                'Dificuldade para relaxar',
+                'Inquietude física — difícil permanecer quieto(a)',
+                'Tornar-se facilmente irritável ou aborrecido(a)',
+                'Sentir medo como se algo terrível fosse acontecer'
+            ],
+            results: getAnsiedadeResults()
+        }
+    };
+
+    function getDepressaoResults() {
+        return [
+            {
+                min: 0, max: 4,
+                severity: 'Mínima', color: 'bg-green-light', textColor: '#2a6b47',
+                desc: 'Sintomatologia abaixo do limiar diagnóstico para TDM. Possível ajuste situacional ou período pré-clínico.',
+                action: 'Acompanhamento expectante. Intervenções em estilo de vida: sono regular, exercício aeróbico (150 min/semana), redução de estressores e psicoeducação.',
+                pharmaTitle: 'Farmacoterapia — Depressão Mínima',
+                pharma: [
+                    { label: '1ª Linha', content: 'Farmacoterapia <strong>não indicada</strong>. Priorizar intervenções não-farmacológicas.' },
+                    { label: 'Estilo de Vida', content: 'Exercício (Nível 1 CANMAT), higiene do sono e TCC breve se disponível.' },
+                    { label: 'Seguimento', content: 'Reavaliação em <strong>4–8 semanas</strong>. PHQ-9 de monitoramento.' }
+                ],
+                note: 'CANMAT 2023: Exercício físico é recomendação de 1ª linha mesmo em depressão subclínica — evidência Nível 1 para redução de sintomas.'
             },
-            gad7: {
-                title: "GAD-7 - Ansiedade",
-                subtitle: "Protocolo de Manejo da Ansiedade (CANMAT/WFSBP)",
-                questions: [
-                    "Sentir-se nervoso(a), ansioso(a) ou muito tenso(a)",
-                    "Não ser capaz de parar ou de controlar suas preocupações",
-                    "Preocupar-se demais com diversas coisas",
-                    "Dificuldade para relaxar",
-                    "Inquietude física (difícil permanecer sentado)",
-                    "Tornar-se facilmente irritável ou aborrecido(a)",
-                    "Sentir medo como se algo terrível fosse acontecer"
-                ]
+            {
+                min: 5, max: 9,
+                severity: 'Leve', color: 'bg-amber-light', textColor: '#8b5e00',
+                desc: 'Critérios leves. O CANMAT preconiza psicoterapia estruturada como abordagem inicial, com farmacoterapia reservada a preferência do paciente ou histórico de depressão grave/recorrente.',
+                action: '1ª Linha: TCC, Terapia Interpessoal (TIP) ou Ativação Comportamental. Exercício físico (evidência Nível 1). Psicoeducação sobre ritmo circadiano e sono.',
+                pharmaTitle: 'Farmacoterapia — Depressão Leve',
+                pharma: [
+                    { label: 'Farmacoterapia Inicial', content: '<em>Geralmente não recomendada de início.</em> Se preferência do paciente ou histórico de episódio grave: <strong>Escitalopram 10mg</strong> ou <strong>Sertralina 50mg</strong>.' },
+                    { label: 'Insônia Comórbida', content: 'Priorizar higiene do sono e TCC-I. Se necessário: <strong>Mirtazapina 7,5–15mg</strong> (especialmente com perda de peso) ou <strong>Trazodona 50mg</strong> (uso off-label cauteloso).' },
+                    { label: 'Reavaliação', content: 'Avaliar resposta em <strong>2–4 semanas</strong>. Iniciar ATD se sem melhora ≥20% com medidas conservadoras.' }
+                ],
+                note: 'CANMAT 2023: Mirtazapina — 1ª linha para TDM com insônia e/ou perda de peso. Efeito sedativo mais pronunciado em doses baixas (7,5–15mg) pelo bloqueio H1 dominante.'
+            },
+            {
+                min: 10, max: 14,
+                severity: 'Moderada', color: 'bg-orange-light', textColor: '#b84a1a',
+                desc: 'Critérios bem estabelecidos para TDM. Indicação formal de tratamento ativo. Impacto funcional presente.',
+                action: 'Tratamento combinado: Farmacoterapia de 1ª linha + Psicoterapia (TCC ou TIP). Monitorar adesão, tolerância e insônia residual.',
+                pharmaTitle: 'Farmacoterapia — Depressão Moderada (CANMAT 2023 1ª Linha)',
+                pharma: [
+                    { label: 'ISRS — 1ª Linha', content: '<strong>Escitalopram 10–20mg</strong> (melhor tolerabilidade, Nível 1)<br><strong>Sertralina 50–200mg</strong> (perfil favorável, 1ª linha)<br><strong>Paroxetina CR 25–50mg</strong> (bom para ansiedade, risco descontinuação)' },
+                    { label: 'IRSN / Multimodal — 1ª Linha', content: '<strong>Duloxetina 60–120mg</strong> (dor comórbida, ansiedade)<br><strong>Desvenlafaxina 50mg</strong><br><strong>Vortioxetina 10–20mg</strong> (cognição, mínimos EPS)<br><strong>Bupropiona XL 150–300mg</strong> (fadiga, foco, sem disfunção sexual)' },
+                    { label: 'Insônia Comórbida — Adjuvantes', content: '<strong>Mirtazapina 15–30mg</strong> (+ peso, sonolência, insônia — 1ª linha CANMAT)<br><strong>Trazodona 50–100mg</strong> (off-label, 2ª linha CANMAT, AASM desencoraja para insônia primária)<br><em>Evitar BZD crônicos.</em> Se necessário: <strong>Zolpidem 5–10mg</strong> curto prazo (<4 sem).' }
+                ],
+                note: 'CANMAT 2023: Avaliar melhora em 2–4 sem. Insônia persistente como sintoma residual dobra o risco de recorrência — tratar ativamente com TCC-I além da farmacoterapia.'
+            },
+            {
+                min: 15, max: 19,
+                severity: 'Moderadamente Grave', color: 'bg-accent-light', textColor: '#c8402a',
+                desc: 'Alta carga sintomática. Risco de cronificação. Resposta parcial prévia ou ausente indica necessidade de potencialização ou troca de classe.',
+                action: 'Tratamento combinado intensivo: Farmacoterapia otimizada + TCC. Considerar encaminhamento psiquiátrico se resposta inadequada em 4–6 semanas.',
+                pharmaTitle: 'Estratégias Avançadas — Depressão Moderadamente Grave (CANMAT 2023)',
+                pharma: [
+                    { label: 'Otimização de Dose', content: 'Maximizar ATD base se tolerado: <strong>Sertralina até 200mg</strong>, <strong>Venlafaxina até 225mg</strong>, <strong>Duloxetina até 120mg</strong>.' },
+                    { label: 'Potencialização 1ª Linha', content: '<strong>Aripiprazol 2–10mg</strong> (Nível 1, CANMAT)<br><strong>Brexpiprazol 1–3mg</strong> (Nível 1, CANMAT)<br><strong>Quetiapina XR 50–300mg</strong> (Nível 1 — insônia, ansiedade, potencialização)<br><strong>Lítio 600–900mg</strong> (Nível 1, níveis séricos 0,6–1,0 mEq/L)' },
+                    { label: 'Troca de Classe (Switch)', content: 'Se ausência de resposta (&lt;20% melhora): trocar ISRS→IRSN, IRSN→multimodal (Vortioxetina), ou ISRS→Bupropiona.<br><strong>Mirtazapina</strong> como alternativa se insônia grave + anorexia.' },
+                    { label: 'Insônia Refratária', content: '<strong>Mirtazapina 15–30mg</strong> (1ª linha adjuvante)<br><strong>Quetiapina XR 25–50mg</strong> (off-label em doses baixas — risco metabólico)<br><em>Trazodona 50mg</em> (2ª linha, cautela AASM)<br><em>BZD: evitar uso crônico</em>' }
+                ],
+                note: 'CANMAT 2023 sobre Quetiapina XR: evidência Nível 1 como potencializador em TDM (150–300mg). Para insônia, doses baixas (25–50mg) são off-label com evidência limitada e riscos metabólicos que devem ser monitorados (glicemia, lipídeos, QTc, peso).'
+            },
+            {
+                min: 20, max: 27,
+                severity: 'Grave', color: '#c8402a', textColor: 'white',
+                desc: 'Prejuízo severo funcional. Possibilidade de sintomas psicóticos, catatônicos ou risco iminente de vida. Requer avaliação psiquiátrica urgente.',
+                action: 'Urgência clínica. Encaminhamento psiquiátrico imediato. Acionar rede sociofamiliar. Avaliar risco de suicídio estruturadamente. Considerar internação.',
+                pharmaTitle: 'Manejo de Crise — Depressão Grave (CANMAT + WFSBP)',
+                pharma: [
+                    { label: 'Associação Obrigatória', content: '<strong>ISRN ou ISRS</strong> em dose máxima tolerada + <strong>Antipsicótico Atípico</strong> (Quetiapina XR, Aripiprazol, Brexpiprazol).<br>Se psicótico: adicionar antipsicótico em doses terapêuticas plenas.' },
+                    { label: 'ECT — 1ª Linha Situacional', content: '<strong>Eletroconvulsoterapia</strong> é 1ª linha para: risco iminente de suicídio, depressão psicótica, catatonia, recusa alimentar grave ou refratariedade a ≥2 ATDs.' },
+                    { label: 'Crise Aguda / Ponte', content: '<strong>Clonazepam 0,5–2mg</strong> ou <strong>Lorazepam 1–2mg</strong> por período estritamente curto (máx. 2–4 sem) para agitação ou ansiedade paralisante enquanto aguarda ação do ATD.' },
+                    { label: 'Insônia Grave', content: '<strong>Mirtazapina 15–30mg</strong> (1ª adjuvante)<br><strong>Quetiapina XR 50–150mg</strong> (potencializador + sono)<br>BZD curto prazo se necessário.<br>TCC-I assim que estado mental permitir.' }
+                ],
+                note: 'CANMAT 2023: Ketamina/Esketamina intranasal (Spravato) aprovada como adjuvante para TDM refratário com ideação suicida — considerar em serviços especializados quando disponível.'
             }
-        };
+        ];
+    }
 
-        function renderQuestions() {
-            const container = document.getElementById('questions-list');
-            container.innerHTML = '';
-            const data = questionsData[currentTool];
-            
-            document.getElementById('header-title').innerText = data.title;
-            document.getElementById('header-subtitle').innerText = data.subtitle;
-
-            data.questions.forEach((text, i) => {
-                const card = document.createElement('div');
-                card.className = "question-card bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-indigo-200";
-                
-                let optionsHtml = '';
-                [
-                    { label: "Nunca", val: 0 },
-                    { label: "Vários dias", val: 1 },
-                    { label: "Metade", val: 2 },
-                    { label: "Sempre", val: 3 }
-                ].forEach(opt => {
-                    const optId = `q${i}-v${opt.val}`;
-                    optionsHtml += `
-                        <div class="relative flex-1">
-                            <input type="radio" name="q${i}" id="${optId}" value="${opt.val}" class="hidden option-input" required>
-                            <label for="${optId}" class="option-label block text-center py-2.5 px-1 rounded-xl border-2 border-slate-50 bg-slate-50/50 cursor-pointer transition-all font-bold text-slate-400 text-[10px] uppercase hover:bg-indigo-50">
-                                ${opt.label}
-                            </label>
-                        </div>
-                    `;
-                });
-
-                card.innerHTML = `
-                    <div class="flex items-start gap-4 flex-1">
-                        <span class="w-7 h-7 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center font-black text-xs">${i+1}</span>
-                        <p class="text-sm font-bold text-slate-700 leading-snug pt-1">${text}</p>
-                    </div>
-                    <div class="flex gap-1 md:w-80">
-                        ${optionsHtml}
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-            document.getElementById('assessmentForm').reset();
-            document.getElementById('result-section').classList.add('hidden');
-            document.getElementById('progress-bar').style.width = '0%';
-        }
-
-        function switchTool(tool) {
-            currentTool = tool;
-            document.getElementById('btn-phq9').classList.toggle('active', tool === 'phq9');
-            document.getElementById('btn-gad7').classList.toggle('active', tool === 'gad7');
-            renderQuestions();
-        }
-
-        document.getElementById('assessmentForm').addEventListener('change', () => {
-            const data = new FormData(document.getElementById('assessmentForm'));
-            const questions = questionsData[currentTool].questions;
-            let total = 0, answered = 0, item9 = 0;
-
-            for(let i=0; i < questions.length; i++) {
-                const val = data.get(`q${i}`);
-                if (val !== null) {
-                    const n = parseInt(val);
-                    total += n;
-                    answered++;
-                    if (currentTool === 'phq9' && i === 8) item9 = n;
-                }
+    function getAnsiedadeResults() {
+        return [
+            {
+                min: 0, max: 4,
+                severity: 'Mínima', color: 'bg-green-light', textColor: '#2a6b47',
+                desc: 'Ansiedade dentro de parâmetros adaptativos/fisiológicos. Ausência de critérios clínicos para TAG.',
+                action: 'Psicoeducação sobre resposta ao estresse. Técnicas de relaxamento, redução de cafeína e manutenção de sono regular.',
+                pharmaTitle: 'Farmacoterapia — Ansiedade Mínima',
+                pharma: [
+                    { label: 'Tratamento de Base', content: 'Farmacoterapia <strong>não indicada</strong>.' },
+                    { label: 'Insônia / Sono', content: 'Higiene do sono. Melatonina 0,5–3mg se distúrbio circadiano leve.' },
+                    { label: 'Manejo de Crise', content: 'Técnicas de respiração diafragmática (4-7-8). Mindfulness.' }
+                ],
+                note: null
+            },
+            {
+                min: 5, max: 9,
+                severity: 'Leve', color: 'bg-amber-light', textColor: '#8b5e00',
+                desc: 'Tensão ansiosa leve. Frequentemente associada a estressores situacionais. Critérios parciais para TAG.',
+                action: 'TCC focada em preocupações excessivas (Nível 1). Mindfulness-Based Stress Reduction (MBSR). Higiene do sono.',
+                pharmaTitle: 'Farmacoterapia — Ansiedade Leve',
+                pharma: [
+                    { label: 'Tratamento de Base', content: 'Farmacoterapia usualmente <strong>não indicada</strong>. Se queixas somáticas refratárias: <strong>Pregabalina 75mg</strong> (2ª linha CANMAT, Nível 2).' },
+                    { label: 'Insônia Adjuvante', content: 'Priorizar TCC-I. Melatonina 1–5mg pode auxiliar. <em>Evitar BZD e Z-drugs nesta fase.</em>' },
+                    { label: 'Manejo de Crise', content: 'Técnica 4-7-8. Grounding sensorial (5-4-3-2-1). Psicoeducação sobre alarmes ansiosos.' }
+                ],
+                note: null
+            },
+            {
+                min: 10, max: 14,
+                severity: 'Moderada', color: 'bg-orange-light', textColor: '#b84a1a',
+                desc: 'Preocupações excessivas e de difícil controle. Início de prejuízo funcional. Critérios para TAG estabelecidos.',
+                action: 'Farmacoterapia de 1ª linha + TCC estruturada (protocolo de preocupações). Monitorar insônia comórbida ativamente.',
+                pharmaTitle: 'Farmacoterapia — Ansiedade Moderada (CANMAT/WFSBP 1ª Linha)',
+                pharma: [
+                    { label: 'ISRS / IRSN — 1ª Linha', content: '<strong>Escitalopram 10–20mg</strong> (Nível 1, TAG)<br><strong>Sertralina 50–200mg</strong> (Nível 1)<br><strong>Duloxetina 60–120mg</strong> (Nível 1, dor comórbida)<br><strong>Venlafaxina XR 75–225mg</strong> (Nível 1)<br><em>*Iniciar com metade da dose por 5–7 dias p/ evitar ativação ansiosa inicial.</em>' },
+                    { label: 'Insônia Comórbida', content: '<strong>Mirtazapina 7,5–15mg</strong> (1ª linha CANMAT para insônia + ansiedade/depressão comórbida — bloqueio H1 + 5HT2A)<br><strong>Trazodona 25–50mg</strong> (2ª linha, off-label, mais segura que BZD)<br><strong>Zolpidem 5mg</strong> fase aguda apenas (&lt;2–4 sem, WEAK evidence AASM)<br><em>Quetiapina 25mg: só se TAG grave + insônia refratária, monitorar metabólico.</em>' },
+                    { label: 'Manejo de Crise', content: '<strong>Clonazepam 0,25–0,5mg</strong> SOS para picos de pânico — uso estritamente intermitente.<br><em>Evitar uso diário; risco de dependência e tolerância.</em>' }
+                ],
+                note: 'CANMAT sobre Mirtazapina: 1ª linha para TDM, amplamente usada off-label para TAG + insônia. Efeito paradoxal de dose: 7,5–15mg é mais sedativo que 30–45mg (H1 predomina em dose baixa). Para insônia primária: evidência DREAMING Trial 2025 apoia uso por até 6 semanas se TCC-I insuficiente.'
+            },
+            {
+                min: 15, max: 21,
+                severity: 'Grave', color: '#c8402a', textColor: 'white',
+                desc: 'TAG incapacitante. Alta probabilidade de somatização, exaustão e comorbidade depressiva. Risco elevado de cronicidade.',
+                action: 'Farmacoterapia intensiva imediata + TCC (protocolo intensivo ou MBCT). Avaliar comorbidade depressiva. Encaminhamento especializado.',
+                pharmaTitle: 'Estratégia Intensiva — Ansiedade Grave (CANMAT/WFSBP)',
+                pharma: [
+                    { label: 'IRSN — 1ª Linha Preferencial', content: '<strong>Venlafaxina XR 75–225mg</strong> (Nível 1)<br><strong>Duloxetina 60–120mg</strong> (Nível 1)<br><strong>Paroxetina 20–50mg</strong> (Nível 1, risco descontinuação)' },
+                    { label: 'Alternativas 1ª / 2ª Linha', content: '<strong>Pregabalina 150–600mg</strong> (Nível 1, CANMAT — eficaz para TAG, especialmente tensão somática e insônia)<br><strong>Buspirona 15–60mg</strong> (Nível 2, sem dependência, início lento ~2 sem)<br><strong>Quetiapina XR 50–150mg</strong> (Nível 2 TAG — eficaz, mas considerar risco metabólico: peso, glicemia, QTc)' },
+                    { label: 'Insônia Adjuvante Grave', content: '<strong>Mirtazapina 15–30mg</strong> (1ª adjuvante: insônia + depressão + perda de peso concomitante)<br><strong>Quetiapina 25–50mg</strong> (off-label — eficácia para sono em TAG/MDD; monitorar peso, glicemia, lipídeos e QTc)<br><strong>Trazodona 50–100mg</strong> (2ª linha, alternativa mais segura metabólicamente)<br><em>BZD: uso temporário como ponte (2–4 sem) — Clonazepam 0,5–1mg ou Lorazepam 1mg</em>' },
+                    { label: 'Ponte BZD (Início ATD)', content: '<strong>Clonazepam 0,5–1mg/dia</strong> ou <strong>Alprazolam XR 0,5mg</strong> por <strong>máximo 4 semanas</strong> para cobertura ansiosa enquanto ISRS/IRSN atinge efeito terapêutico. Planejar retirada progressiva desde o início.' }
+                ],
+                note: 'Quetiapina em dose baixa (25–50mg) para insônia: amplamente usada off-label. Meta-análise Lin 2023 apoia eficácia em pacientes com TAG/MDD comórbidos. Porém, AASM e revisão canadense (Therapeutics Letter 79) destacam ausência de RCT positivo para insônia primária e riscos metabólicos mesmo em doses baixas (ganho de peso, QTc, síndrome metabólica, risco em idosos). Usar com monitoramento e consentimento informado.'
             }
+        ];
+    }
 
-            document.getElementById('progress-bar').style.width = `${(answered / questions.length) * 100}%`;
-            if (answered === questions.length) showResults(total, item9);
+    function renderQuestions() {
+        const data = toolData[currentTool];
+        document.getElementById('hdr-tool').textContent = data.title;
+        document.getElementById('hdr-sub').textContent = data.subtitle;
+        document.getElementById('score-max').textContent = '/' + data.maxScore;
+
+        const container = document.getElementById('questions-list');
+        container.innerHTML = '';
+
+        data.questions.forEach((text, i) => {
+            const card = document.createElement('div');
+            card.className = 'q-card';
+            card.id = `qcard-${i}`;
+
+            const options = [
+                { label: 'Nunca', val: 0 },
+                { label: 'Vários dias', val: 1 },
+                { label: 'Metade', val: 2 },
+                { label: 'Sempre', val: 3 }
+            ];
+
+            let optsHtml = options.map(o => `
+                <div>
+                    <input type="radio" name="q${i}" id="q${i}v${o.val}" value="${o.val}" class="opt-radio">
+                    <label for="q${i}v${o.val}" class="opt-label">${o.label}</label>
+                </div>
+            `).join('');
+
+            card.innerHTML = `
+                <div class="q-top">
+                    <span class="q-num">Q${String(i+1).padStart(2,'0')}</span>
+                    <p class="q-text">${text}</p>
+                </div>
+                <div class="q-options">${optsHtml}</div>
+            `;
+            container.appendChild(card);
         });
 
-        function createPharmaCard(title, content, colorClass = "bg-white/10") {
-            return `
-                <div class="${colorClass} p-5 rounded-2xl border border-white/10 backdrop-blur-sm">
-                    <span class="text-[9px] font-black text-indigo-200 uppercase tracking-widest block mb-2">${title}</span>
-                    <div class="text-sm font-medium leading-relaxed">${content}</div>
-                </div>
-            `;
-        }
+        document.getElementById('assessmentForm').reset();
+        document.getElementById('result-section').classList.add('hidden');
+        document.getElementById('progress-bar').style.width = '0%';
+    }
 
-        function showResults(score, item9) {
-            const section = document.getElementById('result-section');
-            const scoreLabel = document.getElementById('final-score');
-            const severityLabel = document.getElementById('final-severity');
-            const descLabel = document.getElementById('final-desc');
-            const actionLabel = document.getElementById('final-action');
-            const pharmaLabel = document.getElementById('pharma-action');
-            const badge = document.getElementById('severity-badge');
-            const warning = document.getElementById('suicide-warning');
-
-            section.classList.remove('hidden');
-            scoreLabel.innerText = score;
-
-            let res = {};
-
-            if (currentTool === 'phq9') {
-                // Lógica Depressão - CANMAT
-                if (score <= 4) {
-                    res = { severity: "Mínima", color: "bg-emerald-100 text-emerald-700", desc: "Abaixo do limiar clínico.", action: "Acompanhamento expectante. Higiene do sono.", 
-                    pharma: createPharmaCard("Manutenção", "Nenhuma indicação de farmacoterapia no momento.") };
-                } else if (score <= 9) {
-                    res = { severity: "Leve", color: "bg-yellow-100 text-yellow-700", desc: "Sintomatologia leve. Vigilância indicada.", action: "Atividade física (150m/sem) e TCC estruturada ou biblioterapia.", 
-                    pharma: createPharmaCard("1ª Linha (Opcional)", "Considerar ISRS (Sertralina 25-50mg) apenas se sintomas persistentes (>4 sem) ou história prévia.") };
-                } else if (score <= 14) {
-                    res = { severity: "Moderada", color: "bg-orange-100 text-orange-700", desc: "Prejuízo funcional evidente.", action: "Tratamento Combinado (Farmaco + TCC).", 
-                    pharma: createPharmaCard("1ª Linha", "<strong>Sertralina 50mg</strong> ou <strong>Escitalopram 10mg</strong>. Avaliar resposta em 4 sem.") + 
-                           createPharmaCard("Alternativa", "<strong>Fluoxetina 20mg</strong> ou <strong>Vortioxetina 10mg</strong>.") };
-                } else if (score <= 19) {
-                    res = { severity: "Moderadamente Grave", color: "bg-red-100 text-red-600", desc: "Carga sintomática elevada. Risco de cronicidade.", action: "Farmacoterapia + TCC Intensiva.", 
-                    pharma: createPharmaCard("Otimização", "<strong>Sertralina 100-150mg</strong>. Titular a cada 1-2 semanas conforme tolerância.") + 
-                           createPharmaCard("ISRN", "<strong>Venlafaxina XR 75-150mg</strong> ou <strong>Duloxetina 60mg</strong> (se dor associada).") };
-                } else {
-                    res = { severity: "Grave", color: "bg-red-700 text-white shadow-xl", desc: "Incapacidade funcional severa. Urgência clínica.", action: "Intervenção intensiva imediata. Avaliar eletroconvulsoterapia (ECT).", 
-                    pharma: createPharmaCard("Agente Duplo", "<strong>Venlafaxina 225mg</strong> ou <strong>Desvenlafaxina 100mg</strong>.") + 
-                           createPharmaCard("Potencialização", "Considerar <strong>Quetiapina 25-50mg</strong> ou <strong>Lítio</strong> se falha terapêutica.") +
-                           createPharmaCard("Sintomáticos", "<strong>Trazodona 50mg</strong> (Noite) se insônia. <strong>Clonazepam 0.5mg</strong> se agitação (uso breve).") };
-                }
-                warning.classList.toggle('hidden', item9 === 0);
-            } else {
-                // Lógica Ansiedade - GAD-7 (Dividido por tratamento, insônia e crise)
-                warning.classList.add('hidden');
-                if (score <= 4) {
-                    res = { severity: "Mínima", color: "bg-emerald-100 text-emerald-700", desc: "Ansiedade controlada.", action: "Psicoeducação e técnicas de relaxamento.", 
-                    pharma: createPharmaCard("Observação", "Sem necessidade de medicação.") };
-                } else if (score <= 9) {
-                    res = { severity: "Leve", color: "bg-yellow-100 text-yellow-700", desc: "Sintomas ansiosos leves.", action: "TCC e higiene do sono. Redução de cafeína.", 
-                    pharma: createPharmaCard("Tratamento", "<strong>Pregabalina 75mg</strong> se tensão muscular.") +
-                           createPharmaCard("Insônia", "<strong>Passiflora/Fitoterápico</strong> ou Higiene do Sono.") +
-                           createPharmaCard("Crise", "Técnicas de respiração diafragmática.") };
-                } else if (score <= 14) {
-                    res = { severity: "Moderada", color: "bg-orange-100 text-orange-700", desc: "Ansiedade persistente com somatização.", action: "ISRS + TCC focada em preocupações.", 
-                    pharma: createPharmaCard("Tratamento", "<strong>Escitalopram 10mg</strong> ou <strong>Sertralina 50mg</strong>.") +
-                           createPharmaCard("Insônia", "<strong>Trazodona 25-50mg</strong> ou <strong>Zolpidem 5mg</strong> (uso pontual).") +
-                           createPharmaCard("Crise", "<strong>Clonazepam 0.25mg-0.5mg</strong> SL em episódios de pânico.") };
-                } else {
-                    res = { severity: "Grave", color: "bg-red-700 text-white shadow-xl", desc: "Pânico ou preocupação paralisante.", action: "Manejo farmacológico vigoroso + TCC.", 
-                    pharma: createPharmaCard("Tratamento", "<strong>Venlafaxina XR 150mg</strong> ou <strong>Paroxetina 20mg</strong>.") +
-                           createPharmaCard("Insônia", "<strong>Mirtazapina 15mg</strong> (Noite) ou <strong>Quetiapina 25mg</strong>.") +
-                           createPharmaCard("Crise", "<strong>Alprazolam 0.5mg</strong> ou <strong>Clonazepam 0.5mg</strong> (SOS). Limitar a 2-4 semanas.") };
-                }
-            }
-
-            badge.className = `px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-[0.1em] mb-4 inline-block ${res.color}`;
-            severityLabel.innerText = res.severity;
-            descLabel.innerText = res.desc;
-            actionLabel.innerText = res.action;
-            pharmaLabel.innerHTML = res.pharma;
-
-            setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
-        }
-
+    function switchTool(tool) {
+        currentTool = tool;
+        document.getElementById('btn-phq9').classList.toggle('active', tool === 'phq9');
+        document.getElementById('btn-gad7').classList.toggle('active', tool === 'gad7');
         renderQuestions();
-    </script>
+    }
+
+    document.getElementById('assessmentForm').addEventListener('change', () => {
+        const data = toolData[currentTool];
+        const numQ = data.questions.length;
+        let total = 0, answered = 0, item9 = 0;
+
+        for (let i = 0; i < numQ; i++) {
+            const el = document.querySelector(`input[name="q${i}"]:checked`);
+            if (el) {
+                const v = parseInt(el.value);
+                total += v;
+                answered++;
+                if (currentTool === 'phq9' && i === 8) item9 = v;
+                document.getElementById(`qcard-${i}`).classList.add('answered');
+            }
+        }
+
+        const pct = (answered / numQ) * 100;
+        document.getElementById('progress-bar').style.width = pct + '%';
+
+        if (answered === numQ) showResults(total, item9);
+    });
+
+    function showResults(score, item9) {
+        const data = toolData[currentTool];
+        const resArr = data.results;
+        const res = resArr.find(r => score >= r.min && score <= r.max) || resArr[resArr.length - 1];
+
+        // Score
+        document.getElementById('final-score').textContent = score;
+
+        // Pill
+        const pill = document.getElementById('severity-pill');
+        pill.textContent = res.severity;
+        pill.style.background = res.color;
+        pill.style.color = res.textColor;
+        pill.style.border = `1.5px solid ${res.textColor}22`;
+
+        document.getElementById('result-title').textContent = res.severity;
+        document.getElementById('result-desc').textContent = res.desc;
+        document.getElementById('action-text').textContent = res.action;
+
+        // Suicide alert
+        const alert = document.getElementById('suicide-alert');
+        if (currentTool === 'phq9' && item9 > 0) {
+            alert.classList.remove('hidden');
+        } else {
+            alert.classList.add('hidden');
+        }
+
+        // Pharma
+        document.getElementById('pharma-title').textContent = res.pharmaTitle;
+        const grid = document.getElementById('pharma-grid');
+        grid.innerHTML = res.pharma.map(p => `
+            <div class="pharma-card">
+                <span class="pharma-card-label">${p.label}</span>
+                <div class="pharma-card-content">${p.content}</div>
+            </div>
+        `).join('');
+
+        // Notes
+        const notesBlock = document.getElementById('notes-block');
+        const noteContent = document.getElementById('note-content');
+        if (res.note) {
+            noteContent.innerHTML = `<strong>Nota CANMAT</strong>${res.note}`;
+            notesBlock.classList.remove('hidden');
+        } else {
+            notesBlock.classList.add('hidden');
+        }
+
+        const section = document.getElementById('result-section');
+        section.classList.remove('hidden');
+        setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+    }
+
+    // INIT
+    renderQuestions();
+</script>
 </body>
 </html>
